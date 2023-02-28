@@ -15,7 +15,7 @@ byte MACADDRESS[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xEE};
 #endif
 
 IPAddress host(192,168,0,102);
-#define PORT 5557
+#define PORT 5556
 
 EthernetClient client;
 EthernetServerPrint server = EthernetServerPrint(1000);
@@ -32,7 +32,7 @@ unsigned long serial0Timestamp = 0;
 char serial0Buffer[SERIAL0_BUF_SIZE];
 unsigned int serial0BufferNum = 0;
 
-#define SERIAL1_BAUD 9600
+#define SERIAL1_BAUD 19200
 #define SERIAL1_TIMEOUT 6
 #define SERIAL1_BUF_SIZE 255
 unsigned long serial1Timestamp = 0;
@@ -72,18 +72,20 @@ void loop() {
 
   if(previousLED+interruptionLED < currentMillis) {
     previousLED = currentMillis;
+    digitalWrite(LED, statusLED=!statusLED);
   }
-  digitalWrite(LED, statusLED=!statusLED);
+  
   
   size_t size;
   EthernetClient sClient = server.available();
   if(sClient) {
     while((size = sClient.available()) > 0) {
-      uint8_t* msg = (uint8_t*)malloc(size+1);
+      Serial1.print((char)sClient.read());
+      /*uint8_t* msg = (uint8_t*)malloc(size+1);
       memset(msg, 0, size+1);
       size = sClient.read(msg, size);
       Serial1.write(msg, size);
-      free(msg);
+      free(msg);*/
     }
   }
  while(Serial1.available() > 0) {
@@ -106,11 +108,13 @@ void loop() {
   }
 
   while((size = client.available()) > 0) {
+    Serial.print((char)client.read());
+    /*
     uint8_t* msg = (uint8_t*)malloc(size+1);
     memset(msg, 0, size+1);
     size = client.read(msg, size);
     Serial.write(msg, size);
-    free(msg);
+    free(msg);*/
     previousPing = currentMillis;
   }
   
