@@ -1,14 +1,14 @@
 #define UIP_CONF_UDP 0
 #define UIP_CONF_MAX_CONNECTIONS 1
 
-#include <EthernetENC.h>
+#include <UIPEthernet.h>
 #include <avr/wdt.h>
 
 #define STATIC
 #define ETH_RESET 4
-byte MACADDRESS[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xEE};
+byte MACADDRESS[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 #ifdef STATIC
-  #define MYIPADDR IPAddress(192,168,0,231)
+  #define MYIPADDR IPAddress(192,168,0,230)
   #define MYIPMASK IPAddress(255,255,255,0)
   #define MYDNS IPAddress(192,168,0,1)
   #define MYGW IPAddress(192,168,0,1)
@@ -18,7 +18,7 @@ IPAddress host(192,168,0,102);
 #define PORT 5556
 
 EthernetClient client;
-EthernetServerPrint server = EthernetServerPrint(1000);
+EthernetServer server = EthernetServer(1000);
 
 #define LED 7
 unsigned long previousLED = 0;
