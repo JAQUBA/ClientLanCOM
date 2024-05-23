@@ -5,8 +5,9 @@
 #include <avr/wdt.h>
 
 #define STATIC
+
 #define ETH_RESET 4
-byte MACADDRESS[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
+byte MACADDRESS[] = {0xBE, 0xEF, 0x00, 0xBA, 0xBE, 0x00};
 #ifdef STATIC
   #define MYIPADDR IPAddress(192,168,0,230)
   #define MYIPMASK IPAddress(255,255,255,0)
@@ -14,7 +15,7 @@ byte MACADDRESS[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
   #define MYGW IPAddress(192,168,0,1)
 #endif
 
-IPAddress host(192,168,0,102);
+IPAddress host(192,168,0,3);
 #define PORT 5556
 
 EthernetClient client;
@@ -59,6 +60,7 @@ void setup() {
 #endif
 
   server.begin();
+
   wdt_enable(WDTO_8S);
 }
 
@@ -74,21 +76,17 @@ void loop() {
     previousLED = currentMillis;
     digitalWrite(LED, statusLED=!statusLED);
   }
-  
-  
   size_t size;
+  
+
+  ////////////SERVICE
   EthernetClient sClient = server.available();
   if(sClient) {
     while((size = sClient.available()) > 0) {
       Serial1.print((char)sClient.read());
-      /*uint8_t* msg = (uint8_t*)malloc(size+1);
-      memset(msg, 0, size+1);
-      size = sClient.read(msg, size);
-      Serial1.write(msg, size);
-      free(msg);*/
     }
   }
- while(Serial1.available() > 0) {
+  while(Serial1.available() > 0) {
     serial1Timestamp = currentMillis;
     serial1Buffer[serial1BufferNum] = (char)Serial1.read();
     if(serial1BufferNum++ >= SERIAL1_BUF_SIZE-1) {
@@ -100,7 +98,10 @@ void loop() {
     server.write(serial1Buffer, serial1BufferNum);
     serial1BufferNum = 0;
   }
-  
+  ///////////////////////////////////////////
+
+
+  //////RADIO
   if(previousPing+interruptionPing < currentMillis) {
     previousPing = currentMillis;
     if(!client.connected() && !client.connect(host, PORT)) return;
@@ -109,12 +110,6 @@ void loop() {
 
   while((size = client.available()) > 0) {
     Serial.print((char)client.read());
-    /*
-    uint8_t* msg = (uint8_t*)malloc(size+1);
-    memset(msg, 0, size+1);
-    size = client.read(msg, size);
-    Serial.write(msg, size);
-    free(msg);*/
     previousPing = currentMillis;
   }
   
