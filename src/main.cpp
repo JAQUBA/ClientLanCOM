@@ -1,27 +1,24 @@
-#define UIP_CONF_UDP 0
-#define UIP_CONF_MAX_CONNECTIONS 1
-
-#include <UIPEthernet.h>
+#include <Ethernet.h>
 #include <avr/wdt.h>
 
 #define STATIC
 
 #define ETH_RESET 4
-byte MACADDRESS[] = {0xBE, 0xEF, 0x00, 0xBA, 0xBE, 0x00};
+byte MACADDRESS[] = {0xBE, 0xEF, 0x00, 0xBA, 0xBA, 0x00};
 #ifdef STATIC
-  #define MYIPADDR IPAddress(192,168,0,230)
+  #define MYIPADDR IPAddress(192,168,0,232)
   #define MYIPMASK IPAddress(255,255,255,0)
   #define MYDNS IPAddress(192,168,0,1)
   #define MYGW IPAddress(192,168,0,1)
 #endif
 
 IPAddress host(192,168,0,3);
-#define PORT 5556
+#define PORT 7110
 
 EthernetClient client;
-EthernetServer server = EthernetServer(1000);
+EthernetServerPrint server = EthernetServerPrint(1000);
 
-#define LED 7
+#define LED 13
 unsigned long previousLED = 0;
 unsigned long interruptionLED = 500;
 bool statusLED = false;
@@ -41,9 +38,11 @@ char serial1Buffer[SERIAL1_BUF_SIZE];
 unsigned int serial1BufferNum = 0;
 
 void setup() {
+  Ethernet.init(SS1);
+
   Serial.begin(SERIAL0_BAUD);
   Serial1.begin(SERIAL1_BAUD);
-  
+
   pinMode(ETH_RESET, OUTPUT);
   digitalWrite(ETH_RESET, LOW);
   delay(200);
@@ -52,7 +51,7 @@ void setup() {
 
   pinMode(LED, OUTPUT);
   digitalWrite(LED, statusLED=!statusLED);
-  
+
 #ifdef STATIC
   Ethernet.begin(MACADDRESS, MYIPADDR, MYDNS, MYGW, MYIPMASK);
 #else
